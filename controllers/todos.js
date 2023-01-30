@@ -1,102 +1,54 @@
-const TodoModel = require("../models/todos")
+const todo = require("../models/todos");
+const cate = require("../models/categories");
 
-exports.findAll = async (req,res,next) =>{
-    try{
-        const data = await TodoModel.find({}).sort({ createdAt: -1 });
-        res.json({
-            message:"getting all todos",
-            data:data,
-        })
+exports.create = async (req, res, next) => {
+  try {
+    // const tId = req.params["tid"];
+    const cId = req.params["cid"];
+    const { body, status, category } = req.body;
+    // const data = new todo({body,status,category})
 
-        if(!data){
-            throw new Error("gagal mengambil data user")
-        }
-    } catch (error){
-        res.status(500).json({ error: error.message })
-    }
-
-    // TodoModel.find({},(err,result) =>{
-    //     if(err){
-    //         res.json(err)
-    //     }else{
-    //         res.json(result)
-    //     }
-    // })
-}
-
-exports.create= async (req,res,next) =>{
-try{
-    const{body,status,category}=req.body
-    const newTodo = new TodoModel ({body,status,category})
-    const data = await newTodo.save()
-
-    if(!data){
-        throw new Error("gagal menambahkan user")
-    }
-    res.json(data)
-    }catch(error){
-        next(error)
-    }
-    // const user =req.body
-    // const newTodo = new TodoModel(user)
-    // await newTodo.save()
-
-    // res.json(user)
-}
-
-
-exports.delete = async (req, res) => {
-    try {
-      const { id: todoId } = req.params;
-      const user = await TodoModel.findByIdAndDelete(todoId);
-  
-      if (!TodoModel) {
-        return res.status(404).json({ msg: `No users with id: ${todoId}` });
+    //check cate ada apa tidak
+    const cateCheck = cate.findById(cId, function (err, docs) {
+      if (err) {
+        console.log(err);
       } else {
-        res.status(200).json({
-          message: `users with id: ${todoId} deleted successfully.`,
-          TodoModel: TodoModel,
-        });
+        console.log("Result : " + docs);
       }
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  };
+    });
 
-  exports.getATodobyId = async (req, res) => {
-    try {
-      const { id: todoId } = req.params;
-      const todo = await TodoModel.findOne({ _id: todoId });
-  
-      if (!TodoModel) {
-        return res.status(404).json({ msg: `No task with id: ${todoId}` });
-      } else {
-        res.status(200).json({
-          message: "Get a TodoModel successfully.",
-          todo: todo,
-        });
-      }
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-}
+    if (cateCheck) {
+      //jika ada
+      //ambil data dari exist check
+      //masukkan data dalam ID tsb
+      // const saveCategory = todo.category.findOne(cateCheck);
 
+      //simpan data di todo
+      const data = new todo({
+        body: body,
+        status: status,
+        category: cateCheck,
+      });
 
-exports.updateATodo = async (req, res) => {
-    try {
-      const { id: todoId } = req.params;
-      const todo = await TodoModel.findByIdAndUpdate(todoId, req.body);
-  
-      if (!todo) {
-        return res.status(404).json({ msg: `No user with id: ${todoId}` });
-      } else {
-        res.status(200).json({
-          msg: `user with id: ${todoId} updated successfully.`,
-          todo: todo,
-        });
-      }
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.json({
+        message: "saved without create new category",
+        data,
+      });
+    } else {
+      //buat kategory baru
+      const newCate = cate.push(category);
+      const save = new todo({
+        body: body,
+        status: status,
+        category: newCate,
+      });
+
+      res.json({
+        message: "saved with new category",
+        save,
+      });
     }
-  };
-  
+  } catch (error) {
+    next(error);
+  }
+};

@@ -1,19 +1,20 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
-const TodoSchema = new mongoose.Schema({
-    body:{
-        type:String,
-        required:true,
+const TodoSchema = new mongoose.Schema(
+  {
+    body: {
+      type: String,
+      required: true,
     },
-    status:{
-        type:Boolean,
-        require:true
+    status: {
+      type: Boolean,
+      require: true,
     },
-    category:{
-        type:String,
-        require:true,
-    }
-})
+    category: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
+  },
+  {
+    timestamps: true,
+  }
+);
 
-
-module.exports = mongoose.model("Todos", TodoSchema)
+module.exports = mongoose.model("Todos", TodoSchema);
