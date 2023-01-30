@@ -10,7 +10,7 @@ const TodoSchema = new mongoose.Schema(
       type: Boolean,
       require: true,
     },
-    category: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
+    category: { type: mongoose.Schema.Types.ObjectId, ref: "Categories" },
   },
   {
     timestamps: true,
