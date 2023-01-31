@@ -8,6 +8,7 @@ const CategorySchema = new mongoose.Schema(
     },
     users: { type: mongoose.Schema.Types.ObjectId, ref: "Users" },
     todos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Todos" }],
+    // todos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Todos" }],
   },
   {
     timestamps: true,

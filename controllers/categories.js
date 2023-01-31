@@ -1,8 +1,11 @@
 const CategoryModel = require("../models/categories");
+const TodosModel = require("../models/todos");
 
 exports.findAll = async (req, res, next) => {
   try {
-    const data = await CategoryModel.find({}).sort({ createdAt: -1 });
+    const data = await CategoryModel.find({})
+      .populate(["todos"])
+      .sort({ createdAt: -1 });
     res.json({
       message: "getting all categories",
       data: data,
@@ -29,7 +32,7 @@ exports.create = async (req, res, next) => {
     const { body } = req.body;
     const newCategory = new CategoryModel({ body });
     const data = await newCategory.save();
-    const existCheck = await CategoryModel.body.findOne({ body });
+    const existCheck = await CategoryModel.findOne({ body });
 
     if (existCheck) {
       throw new Error("category sudah ada");
@@ -70,10 +73,14 @@ exports.delete = async (req, res) => {
 exports.getById = async (req, res) => {
   try {
     const { id: categoryId } = req.params;
-    const category = await CategoryModel.findOne({ _id: categoryId });
+    const category = await CategoryModel.findOne({
+      _id: categoryId,
+    }).populate("todos");
 
     if (!CategoryModel) {
-      return res.status(404).json({ msg: `No category with id: ${categoryId}` });
+      return res
+        .status(404)
+        .json({ msg: `No category with id: ${categoryId}` });
     } else {
       res.status(200).json({
         message: "Get a Category successfully.",
@@ -88,7 +95,10 @@ exports.getById = async (req, res) => {
 exports.updateById = async (req, res) => {
   try {
     const { id: categoryId } = req.params;
-    const category = await CategoryModel.findByIdAndUpdate(categoryId, req.body);
+    const category = await CategoryModel.findByIdAndUpdate(
+      categoryId,
+      req.body
+    );
 
     if (!category) {
       return res.status(404).json({ msg: `No user with id: ${categoryId}` });

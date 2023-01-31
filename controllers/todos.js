@@ -1,30 +1,33 @@
 const todo = require("../models/todos");
 const cate = require("../models/categories");
 
+exports.findAll = async (req, res, next) => {
+  try {
+    const data = await todo.find({}).populate("category", "body");
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.create = async (req, res, next) => {
   try {
     // const tId = req.params["tid"];
-    const cId = req.params["cid"];
+    const cId = req.params.cid;
     const { body, status, category } = req.body;
     // const data = new todo({body,status,category})
 
     //check cate ada apa tidak
-    const cateCheck = cate.findById(cId, function (err, docs) {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("Result : " + docs);
-      }
-    });
+    const cateCheck = await cate.findOne({ _id: cId });
 
     if (cateCheck) {
       //jika ada
       //ambil data dari exist check
       //masukkan data dalam ID tsb
-      // const saveCategory = todo.category.findOne(cateCheck);
+      // await todo.category.insert(cateCheck);
 
       //simpan data di todo
-      const data = new todo({
+      const data = await todo.create({
         body: body,
         status: status,
         category: cateCheck,
